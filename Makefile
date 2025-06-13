@@ -1,4 +1,4 @@
-.PHONY: build test clean fmt vet lint install deps run help dist
+.PHONY: build test clean fmt vet lint install deps run help container
 
 # Binary name
 BINARY_NAME=tsuribari
@@ -117,6 +117,18 @@ build-all:
 # Check code quality
 check: fmt vet lint test
 
+# Build container image
+container: build
+	@echo "Building container image..."
+	@GIT_COMMIT=$$(git describe --dirty --abbrev=7 --tags --always --first-parent 2>/dev/null || echo "unknown") \
+	&& doas podman build \
+		--volume /usr/local/sbin/pkg:/bin/pkg \
+		--env GIT_COMMIT=$$GIT_COMMIT \
+		--no-hosts \
+		--squash \
+		--tag cr.skunkwerks.at/tsuribari:$$GIT_COMMIT \
+		--file Containerfile
+
 # Help target
 help:
 	@echo "Available targets:"
@@ -132,5 +144,6 @@ help:
 	@echo "  run           - Build and run the application"
 	@echo "  dev           - Run in development mode"
 	@echo "  build-all     - Build for multiple platforms"
+	@echo "  container     - Build container image"
 	@echo "  check         - Run all code quality checks"
 	@echo "  help          - Show this help message"
