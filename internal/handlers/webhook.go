@@ -6,16 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"tsuribari/internal/models"
-	"tsuribari/internal/queue"
-	"tsuribari/internal/storage"
 )
 
 type WebhookHandler struct {
-	storage *storage.CouchDB
-	queue   *queue.RabbitMQ
+	storage Storage
+	queue   Queue
 }
 
-func NewWebhookHandler(storage *storage.CouchDB, queue *queue.RabbitMQ) *WebhookHandler {
+func NewWebhookHandler(storage Storage, queue Queue) *WebhookHandler {
 	return &WebhookHandler{
 		storage: storage,
 		queue:   queue,
