@@ -50,15 +50,24 @@ func (h *WebhookHandler) HandleWebhook(c *gin.Context) {
 	// Transform to workflow
 	workflow := models.TransformWebhookToWorkflow(doc)
 	if workflow == nil {
-		c.JSON(http.StatusOK, gin.H{"message": "webhook stored but cannot transform to workflow"})
+		c.JSON(http.StatusOK, gin.H{
+			"message": "webhook stored but cannot transform to workflow",
+			"id":  doc.ID,
+		})
 		return
 	}
 
 	// Publish to RabbitMQ
 	if err := h.queue.PublishWorkflow(workflow); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to publish workflow"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":  "failed to publish workflow",
+			"id": doc.ID,
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "you have achieved enlightenment"})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "you have achieved enlightenment",
+		"id":  doc.ID,
+	})
 }
