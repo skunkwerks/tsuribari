@@ -1,0 +1,19 @@
+server:
+  port: "4003"
+
+couchdb:
+  url: "http://admin:passwd@127.0.0.1:5984"
+  database: "koans"
+
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  exchange: "koans.topic"
+  queue: "koans.workflow"
+
+security:
+  trusted_ips:
+    - "123.45.67.89"
+    - "192.168.1.0/24"
+  secrets:
+    demo: "123456789abcdef0123456789abcdef0"
+    skunkwerks: "e08949d75d7e289f210badf852d8309e"
