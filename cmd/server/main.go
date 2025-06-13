@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/syslog"
 	"net/http"
 	"net/url"
 	"os"
@@ -37,7 +38,32 @@ func extractVhost(amqpURL string) string {
 	return "/" + vhost
 }
 
+func setupLogging() {
+	if os.Getenv("DEBUG") != "" {
+		// Debug mode: log to console
+		log.SetOutput(os.Stdout)
+		log.SetPrefix("tsuribari: ")
+		return
+	}
+
+	// Production mode: log to syslog
+	syslogWriter, err := syslog.New(syslog.LOG_INFO|syslog.LOG_DAEMON, "tsuribari")
+	if err != nil {
+		// Fallback to console if syslog fails
+		log.Printf("Failed to connect to syslog, falling back to console: %v", err)
+		log.SetOutput(os.Stdout)
+		log.SetPrefix("tsuribari: ")
+		return
+	}
+
+	log.SetOutput(syslogWriter)
+	log.SetFlags(0) // syslog handles timestamps
+}
+
 func main() {
+	// Setup logging first
+	setupLogging()
+
 	// Set Gin to release mode if DEBUG is not set
 	if os.Getenv("DEBUG") == "" {
 		gin.SetMode(gin.ReleaseMode)
