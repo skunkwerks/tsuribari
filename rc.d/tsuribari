@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# PROVIDE: tsuribari
+# REQUIRE: DAEMON NETWORKING
+# KEYWORD: shutdown
+#
+# Add the following lines to /etc/rc.conf.local or /etc/rc.conf to enable tsuribari:
+# tsuribari_enable (bool):        Set to "NO" by default.
+#                              Set it to "YES" to enable tsuribari.
+# tsuribari_user (user):          Set to "www" by default.
+#                              User to run tsuribari as.
+# tsuribari_group (group):        Set to "www" by default.
+#                              Group to run tsuribari as.
+# tsuribari_args (str):           Set to "" by default.
+#                              Extra flags passed to tsuribari.
+
+. /etc/rc.subr
+
+name=tsuribari
+rcvar=tsuribari_enable
+
+load_rc_config $name
+
+: ${tsuribari_enable:="NO"}
+: ${tsuribari_user:="www"}
+: ${tsuribari_group:="www"}
+: ${tsuribari_args:=""}
+
+pidfile="/var/run/${name}.pid"
+daemon_pidfile="/var/run/${name}-daemon.pid"
+procname="/usr/local/bin/tsuribari"
+command="/usr/sbin/daemon"
+command_args="-f -c -R 5 -r -T ${name} -p ${pidfile} -P ${daemon_pidfile} ${procname} ${tsuribari_args}"
+
+start_precmd=tsuribari_startprecmd
+stop_postcmd=tsuribari_stoppostcmd
+
+tsuribari_startprecmd()
+{
+	if [ ! -e ${daemon_pidfile} ]; then
+		install -o ${tsuribari_user} -g ${tsuribari_group} /dev/null ${daemon_pidfile};
+	fi
+	if [ ! -e ${pidfile} ]; then
+		install -o ${tsuribari_user} -g ${tsuribari_group} /dev/null ${pidfile};
+	fi
+}
+
+
+tsuribari_stoppostcmd()
+{
+	if [ -f "${daemon_pidfile}" ]; then
+		pids=$( pgrep -F ${daemon_pidfile} 2>&1 )
+		_err=$?
+		[ ${_err} -eq 0 ] && kill -9 ${pids}
+	fi
+}
+
+run_rc_command "$1"
