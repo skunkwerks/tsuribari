@@ -1,0 +1,22 @@
+server:
+  host: "127.0.0.1"
+  port: "8080"
+
+couchdb:
+  url: "http://admin:password@localhost:5984"
+  database: "test_webhooks"
+
+rabbitmq:
+  url: "amqp://guest:guest@localhost:5672/"
+  exchange: "test.topic"
+  queue: "test.workflow"
+
+security:
+  trusted_ips:
+    - "127.0.0.1"
+    - "::1"
+    - "192.168.1.0/24"
+  secrets:
+    testorg: "test_secret_123456789abcdef"
+    demo: "demo_secret_abcdef123456789"
+    baxterthehacker: "github_webhook_secret_key"
