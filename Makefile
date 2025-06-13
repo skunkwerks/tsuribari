@@ -22,7 +22,9 @@ MAIN_PATH=./cmd/server
 build:
 	@echo "Building $(BINARY_NAME)..."
 	@mkdir -p $(BUILD_DIR)
-	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
+	@GIT_COMMIT=$$(git describe --dirty --abbrev=7 --tags --always --first-parent 2>/dev/null || echo "unknown"); \
+	BUILD_TIME=$$(date -u '+%Y%m%d-%H%M'); \
+	$(GOBUILD) -ldflags "-X main.GitCommit=$$GIT_COMMIT -X main.BuildTime=$$BUILD_TIME" -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
 	@echo "Build complete: $(BUILD_DIR)/$(BINARY_NAME)"
 
 # Run tests

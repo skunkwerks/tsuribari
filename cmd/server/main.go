@@ -17,6 +17,12 @@ import (
 	"tsuribari/internal/storage"
 )
 
+// Build information injected at compile time
+var (
+	GitCommit = "unknown"
+	BuildTime = "unknown"
+)
+
 func extractHostname(rawURL string) string {
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -63,6 +69,9 @@ func setupLogging() {
 func main() {
 	// Setup logging first
 	setupLogging()
+
+	// Log startup information
+	log.Printf("tsuribari starting (commit: %s, built: %s)", GitCommit, BuildTime)
 
 	// Set Gin to release mode if DEBUG is not set
 	if os.Getenv("DEBUG") == "" {
