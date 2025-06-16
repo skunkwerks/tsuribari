@@ -5,6 +5,8 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"log"
+	"net/http"
 	"time"
 
 	_ "github.com/go-kivik/couchdb/v3"
@@ -52,6 +54,15 @@ func (c *CouchDB) StoreWebhook(headers map[string]string, body []byte) (*models.
 
 	_, err := c.db.Put(context.Background(), docID, doc)
 	if err != nil {
+		// for 409 conflicts, return the document anyway since it
+		// already exists with the correct checksum
+		if kivik.StatusCode(err) == http.StatusConflict {
+			log.Printf("409 conflict from webhook with doc.id: %s", docID)
+			return doc, nil
+		}
+
+		// Log other errors for debugging
+		log.Printf("ERROR: couchdb: %v (status: %d)", err, kivik.StatusCode(err))
 		return nil, err
 	}
 
