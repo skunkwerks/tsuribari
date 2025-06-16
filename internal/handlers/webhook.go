@@ -50,7 +50,7 @@ func (h *WebhookHandler) HandleWebhook(c *gin.Context) {
 	if workflow == nil {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "webhook stored but cannot transform to workflow",
-			"id":  doc.ID,
+			"id":      doc.ID,
 		})
 		return
 	}
@@ -58,14 +58,14 @@ func (h *WebhookHandler) HandleWebhook(c *gin.Context) {
 	// Publish to RabbitMQ
 	if err := h.queue.PublishWorkflow(workflow); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":  "failed to publish workflow",
-			"id": doc.ID,
+			"error": "failed to publish workflow",
+			"id":    doc.ID,
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "you have achieved enlightenment",
-		"id":  doc.ID,
+		"id":      doc.ID,
 	})
 }
